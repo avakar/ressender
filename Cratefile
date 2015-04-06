@@ -1,0 +1,10 @@
+[[crate]]
+name = "ressender"
+type = "cpp-exe"
+sources = ["*.cpp"]
+link = ["libyb"]
+
+[[crate]]
+name = "libyb"
+git = "git@github.com:avakar/libyb.git"
+branch = "devel"
