@@ -7,6 +7,7 @@
 
 #include <libyb/async/channel.hpp>
 #include <libyb/async/timer.hpp>
+#include <libyb/async/sigint.hpp>
 
 struct mystream
 	: public yb::istream
@@ -133,5 +134,15 @@ private:
 int main()
 {
 	app a;
-	await (yb::run_http_server(7589, std::ref(a)) | a.run());
+
+	yb::sync_runner r;
+	yb::task<void> server = r.post(yb::run_http_server(7589, std::ref(a)));
+	yb::task<void> app = r.post(a.run());
+
+	std::cout << "Press Ctrl+C to exit..." << std::endl;
+	r.run(yb::wait_for_sigint());
+
+	std::cout << "Exiting gracefully..." << std::endl;
+	server.cancel(yb::cl_quit);
+	r.run(std::move(server));
 }
